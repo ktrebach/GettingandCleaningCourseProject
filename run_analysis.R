@@ -1,3 +1,5 @@
+## Getting and Cleaning Course Project
+## Please read the accompanying codebook.md and README.md at GitHub
 ## This script will:
 ##    1. Merge the training and the test sets to create one data set.
 ##    2. Extract only the measurements on the mean and standard deviation for each measurement. 
@@ -6,114 +8,91 @@
 ##    5. From the data set in step 4, creates a second, independent tidy data set with
 ##          the average of each variable for each activity and each subject.
 
-##The data are collected from the accelerometers from the Samsung Galaxy S smartphone.
-##A description of the data is here:  
+## The data are collected from the accelerometers from the Samsung Galaxy S smartphone.
+## A description of the data is here:  
 ##    http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
 
-##Final Project: submit on github run_analysis R script, a ReadMe markdown document, 
+## Final Project: submit on github run_analysis R script, a ReadMe markdown document, 
 ##          a Codebook markdown document, and a tidy data text file (this last goes on Coursera)
 
-##The standard interpretation is that the starting place is the UCI folder is inside the working directory.
-dataUrl<-https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 
-##download, unzip, read; it's pretty big so we want to check to see if it's already been downloaded
+dataUrl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 
-##
-##
-setwd("/Users/seantrebach/Downloads/UCI HAR Dataset") ###need
-read.table("activity_labels.txt")->act_labels ###need
-## "features_info.txt" is a md file Dont need
-read.table("features.txt")->features  ###need
+## Download, unzip, read; it's pretty big so we want to check to see if it's already been downloaded
+setwd("~/Downloads")
+if(!file.exists("~/Downloads/UCI HAR Dataset/features.txt")) {
+      download.file(dataUrl,destfile="./Dataset.zip",method="curl")
+      unzip("Dataset.zip")
+      timemarker<-Sys.time()
+      write(timemarker,file="~/Downloads/UCI HAR Dataset/DownloadDateTime.txt")  ## record download date/time
+}
 
+## Read activity labels and features list tables
 
+setwd("~/Downloads/UCI HAR Dataset") 
+read.table("activity_labels.txt")->act_labels
+read.table("features.txt")->features
 
+## Read test tables
 
-setwd("/Users/seantrebach/Downloads/UCI HAR Dataset/test") ###need
-read.table("subject_test.txt")->subj_test ##2947 obs x 1 variable-->
+read.table("~/Downloads/UCI HAR Dataset/test/subject_test.txt")->subj_test ##2947 obs x 1 variable
                   ##identifies which of the 9 subjects (volunteers) for each row of data 
-read.table("X_test.txt")->X_test ##2947 obs x 561 variables
-read.table("y_test.txt")->y_test  ##2947 obs x 1 variable-->
+read.table("~/Downloads/UCI HAR Dataset/test/X_test.txt")->X_test ##2947 obs x 561 variables
+read.table("~/Downloads/UCI HAR Dataset/test/y_test.txt")->y_test  ##2947 obs x 1 variable
                   ##identifies which of the 6 activities for each row of data 
 
-setwd("/Users/seantrebach/Downloads/UCI HAR Dataset/train")  ###need
-read.table("subject_train.txt")->subj_train ##7352 obs x 1 variable-->
+## Read train tables
+
+read.table("~/Downloads/UCI HAR Dataset/train/subject_train.txt")->subj_train ##7352 obs x 1 variable
                   ##identifies which of the 21 subjects (volunteers) for each row of data 
-read.table("X_train.txt")->X_train ##7352 obs x 561 variables
-read.table("y_train.txt")->y_train  ## 7352 obs x 1 variable-->
+read.table("~/Downloads/UCI HAR Dataset/train/X_train.txt")->X_train ##7352 obs x 561 variables
+read.table("~/Downloads/UCI HAR Dataset/train/y_train.txt")->y_train  ## 7352 obs x 1 variable
                   ##identifies which of the 6 activities for each row of data 
 
-
-
-##table(subj_text$V1) 
-
-##  2   4   9  10  12  13  18  20  24 
-##302 317 288 294 320 327 364 354 381 
-
-##table(y_test$V1)
-
-##  1   2   3   4   5   6 
-##496 471 420 491 532 537 
-
-
-##setwd("/Users/seantrebach/Downloads/UCI HAR Dataset/test/Inertial Signals")  ##not sure i need 
-## to read these tables - are they idividuals that are used to calc the xy??
-##read.table("body_acc_x_test.txt")->body_acc_x_test ##2947 obs x 128 variables; same for y and z
-##read.table("body_gyro_x_test.txt")->body_gyro_x_test ##2947 obs x 128 variables; same for y and z
-##read.table("total_acc_x_test.txt")->total_acc_x_test ##2947 obs x 128 variables; same for y and z
-
-
+## Assign column names
 colnames(X_test)<-features$V2  ##assign colnames to X_test
 colnames(X_train)<-features$V2  ##assign colnames to X_train
 
+## Add columns to identify subject and activity to each of X_test and X_train
 X_test2<-cbind(subject=subj_test$V1,X_test) ## add subj_test to the X_test (identifies the subject)
-X_test2<-cbind(activity=y_test$V1,X_test2) ##add y_test to the X_test (identifies which activity)
-
-##do we need to retain the test identification??  NOT A REQUIREMENT - but discuss in code book!
-##filename<-rep("test",times=nrow(X_test2))  ##create a character vector to label test
-##X_test2<-cbind(X_test2,filename) ## bind the label test to X_test
+X_test2<-cbind(activity=y_test$V1,X_test2) ## add y_test to the X_test (identifies which activity)
 
 X_train2<-cbind(subject=subj_train$V1,X_train) ## add subj_train to the X_train (identifies the subject)
 X_train2<-cbind(activity=y_train$V1,X_train2) ##add y_train to the X_train (identifies which activity)
 
-##do we need to retain the train identification?? NOT A REQUIREMENT  - but discuss in code book
-##filename<-rep("train",times=nrow(X_train2))  ##create a character vector to label train
-##X_train2<-cbind(X_train2,filename) ## bind the label train to X_train
+## Merge the test and train data sets
+bigdata<-rbind(X_train2,X_test2)
 
-bigdata<-rbind(X_train2,X_test2) ##merge the two data sets
-
-
-
+## Use dplyr to finish the tidying process
 library(dplyr)
-## to "select" only columns with mean and std  
 
-bigdata2<-bigdata[, !duplicated(colnames(bigdata))] ## to remove duplicated col names
-##bigdata2<-bigdata[!duplicated(lapply(bigdata,c))] ## to rename duplicated col names so they are all unique
-##          this seems to drop some columns though!! tGravityAccMag is missing
+bigdata<-bigdata[, !duplicated(colnames(bigdata))] ## to remove duplicated col names
 
-##bigdataX<-select(bigdata2,activity,subject,filename,contains("mean"),contains("std"))
-bigdata3<-select(bigdata2,activity,subject,contains("mean()"),
-                 contains("std()"))
-##I removed the meanFreq() variables.  EXPLAIN WHY in CodeBook
+bigdata<-merge(bigdata,act_labels,by.x="activity",by.y="V1", all=TRUE) ## adds activity labels 
 
-## to add activity labels 
-merge(bigdata3,act_labels,by.x="activity",by.y="V1", all=TRUE)->bigdata4 
-bigdata5<-select(bigdata4,subject,activity=V2,contains("mean()"),contains("std()"))
+bigdata<-bigdata %>%
+      
+      select(activity,subject,V2,contains("mean()"),contains("std()")) %>% ## selects desired feature variables
+      
+      select(subject,activity=V2,contains("mean()"),contains("std()")) %>% ## renames activity label variable and sort columns
+      
+      arrange(subject,activity) ## initial tidy data set sorted by subject then activity
 
-##bigdata5 is first tidy dataframe (step 4)
+## Create a second tidy data set with the average of each variable for each activity and each subject.
 
-##step 5. From the data set above, creates a second, independent tidy data set
-##          with the average of each variable for each activity and each subject.
-actsubj<-group_by(bigdata5,subject,activity)
-meanby_actsubj<-summarise_each(actsubj,funs(mean))
+HARMeans<-bigdata %>%
+      
+      group_by(subject,activity) %>%  ## Group the table by subject and activity
+      
+      summarise_each(funs(mean)) ## Gives a 180 x 68 table of the averages of the Means and Standard Deviation
+                                 ## of each feature variable for each subject-activity combination 
 
-tidyF<-arrange(meanby_actsubj,subject,activity) ## 2nd tidy dataframe to be uploaded to coursera
+## Write HARMeans to a text file in my local GIT repository.
+write.table(HARMeans,
+            "~/Desktop/Data Scientist JH MOOC/Getting Cleaning/GettingandCleaningCourseProject/HARMeans.txt",
+            sep="\t")
 
-##write tidyF to a text file is i think the last step.
-
-
-
-##  library(reshape2) ## if using join or melt
-
-##manual calc to get means of all variables for activity=1,subject=1
-##filter(bigdata5,activity==1,subject==1)->a1s1
-##meansofa1s1<-colMeans(a1s1[,4:69])
+print(c("The initial tidy data set is in the global environment as 'bigdata'.", 
+      "The second tidy data set is in the global environment as 'HARMeans'.",
+      "HARMeans.txt has been written to the local Git repository."))
+## End

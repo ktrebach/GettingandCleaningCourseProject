@@ -28,7 +28,6 @@ The dataset is located here:  https://d396qusza40orc.cloudfront.net/getdata%2Fpr
 ###Description of Raw Dataset:  From Smartlab
 For each record it is provided:
 
-======================================
 
 - Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration.
 
@@ -43,8 +42,6 @@ For each record it is provided:
 
 
 The dataset includes the following files:
-
-=========================================
 
 
 - 'README.txt'
@@ -76,7 +73,6 @@ The following files are available for the train and test data. Their description
 
 
 Notes: 
-======
 
 - Features are normalized and bounded within [-1,1].
 
@@ -90,22 +86,22 @@ In order to orient the user of the script, it is important to understand the raw
 
 The dataset is available in a zipped file. Once unzipped, the data set folder is called UCI HAR Dataset. This folder contains four text files, and two internal folders, "test" and "train".
 * activity_labels.txt:  list of the 6 activities, each assigned to an integer 1 to 6 (dimensions 6x2)
-* features.txt:  list of the 561 variables in the features set, each assigned to an integer 1 to 561 (dimensions 561x2).  It is noted after viewing the least of features that some of the feature names are replicated.  Since none of them are mean or standard deviation measures, they can safely be removed at any time.
+* features.txt:  list of the 561 variables in the features set, each assigned to an integer 1 to 561 (dimensions 561x2).  It is noted after viewing the list of feature variables that some of the feature variable names are duplicated.  Since none of them are mean or standard deviation measures, they can safely be removed at any time.
 * features_info.txt: is a markdown file with additional description of the features and is not used in the project.
-* test folder:  Contains 
-** X_test.txt: the test set which contains 2947 observations with 561 variables and corresponds to the six activities performed by the 9 subjects selected to be in the train subset.
-** subject_test.txt:  identifies which of the 9 subjects (volunteers) for each row of data 
-** y_test.txt:  identifies which of the 6 activities for each row of data 
+* The test folder contains: 
+*  X_test.txt: the test set which contains 2947 observations with 561 variables and corresponds to the six activities performed by the 9 subjects selected to be in the train subset.
+*  subject_test.txt:  identifies which of the 9 subjects (volunteers) for each row of data 
+*  y_test.txt:  identifies which of the 6 activities for each row of data 
 
-* train folder:  Contains 
-** X_train.txt: the train set which contains 7352 observations with 561 variables and corresponds to the six activities performed by the 21 subjects selected to be in the train subset.
-** subject_train.txt:  identifies which of the 21 subjects (volunteers) for each row of data 
-** y_train.txt:  identifies which of the 6 activities for each row of data 
+* The train folder contains: 
+*  X_train.txt: the train set which contains 7352 observations with 561 variables and corresponds to the six activities performed by the 21 subjects selected to be in the train subset.
+*  subject_train.txt:  identifies which of the 21 subjects (volunteers) for each row of data 
+*  y_train.txt:  identifies which of the 6 activities for each row of data 
 
 The data in both inertial signals folders were used to generate the variable features and were not used for the Course Project.
 
 ###Tidy Datasets Variables and Structure
-The initial tidy dataset will include (7352+2947) = 10,299 rows of data corresponding to all (30) volunteer activity results in the data set.
+The initial tidy dataset will include both the test data and the train data and will contain (7352+2947) = 10,299 rows of data corresponding to all (30) volunteer activity results in the data set.
 
 Further, the initial tidy data set will include the following columns (variables):
 * activity  (character) -  one of six descriptive activity labels that corresponds to the integer assigned in the y_train or y_test files for each volunteer activity.
@@ -117,25 +113,30 @@ The second tidy data set will include an average of the 66 feature variables by 
 
 ###Steps for Processing the Raw Data 
 
-1. Run the run_analysis.R script
+1. dplyr must be installed in the R environment
+2. Run the run_analysis.R script
 
 ###What does run_analysis.R script do?
-1. Download the dataset into the local directory and unzip.
+1. Download the dataset into the local directory and unzip if it hasn't already been done.
 2. Read the txt files described above into R using read.table and assign table names
-3. Assign column names to the X_test and X_train using the values from the resoective features file
+3. Assign column names to the X_test and X_train using the values from the respective features file
 4. Add subj_test to the X_test table to identify the subject (variable name is subject) and add y_test to identify which activity (variable name is activity) for each observation in X_test. (use cbind)
 5. Add subj_train to the X_train table to identify the subject and add y_train to identify which activity for each observation in X_train. (use cbind)
-6.  Merge the two data sets using rbind.  Please note that the distinction between test subjects and train subjects will be lost upon this merge.  It is not a requirement of the Course Project to retain a distinction.
-7.  Remove duplicate named variables.
-8.  Select the following columns:  activity, subject, and the subset (66) of the 561 feature variables that contain mean() or std().
-9.  Add the descriptive activity labels to the dataset to replace the numeric code using merge
-10. Select the following columns: subject, activity label, and the 66 feature variables
-This is the initial tidy data set.  Dimensions:  10,299 x 68
+6.  Merge the test and train data sets using rbind.  Please note that the distinction between test subjects and train subjects will be lost upon this merge.  It is not a requirement of the Course Project to retain the distinction.
+7.  Remove duplicately named variables.
+8.  Add the descriptive activity labels to the dataset to replace the numeric code using merge
+9. Select and arrange the following columns:  activity, subject, and the subset (66) of the 561 feature variables that contain mean() or std(). 
+10. Arrange the rows by subject then activity,
+
+The result is an object, 'bigdata', which is the initial tidy data set.  Dimensions:  10,299 x 68
 
 
 From the initial tidy data set, the second tidy data set is now created:
-1.  Group the initial tidy data set by subject and activity.
-2.  Calculate the mean of each of the 66 feature variables using summarize
-3.  Sort by subject then activity.
-4.  Write the resulting second tidy dataset to a text file "HARMeans.txt"
-This is the second tidy dataset.  Dimensions 180 x 68
+1. Group the initial tidy data set by subject and activity.
+2. Calculate the mean of each of the 66 feature variables using summarize
+3. Sort by subject then activity.
+4. Write the resulting second tidy dataset to a text file "HARMeans.txt" into a local git repository.
+
+The result is an object, 'HARMeans', which is the second tidy dataset.  Dimensions: 180 x 68
+
+END

@@ -29,9 +29,9 @@ if(!file.exists("~/Downloads/UCI HAR Dataset/features.txt")) {
 
 ## Read activity labels and features list tables
 
-setwd("~/Downloads/UCI HAR Dataset") 
-read.table("activity_labels.txt")->act_labels
-read.table("features.txt")->features
+
+read.table("~/Downloads/UCI HAR Dataset/activity_labels.txt")->act_labels
+read.table("~/Downloads/UCI HAR Dataset/features.txt")->features
 
 ## Read test tables
 
@@ -90,7 +90,7 @@ HARMeans<-bigdata %>%
 ## Write HARMeans to a text file in my local GIT repository.
 write.table(HARMeans,
             "~/Desktop/Data Scientist JH MOOC/Getting Cleaning/GettingandCleaningCourseProject/HARMeans.txt",
-            sep="\t")
+            sep="\t",row.name=FALSE)
 
 print(c("The initial tidy data set is in the global environment as 'bigdata'.", 
       "The second tidy data set is in the global environment as 'HARMeans'.",
